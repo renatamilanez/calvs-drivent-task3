@@ -2,6 +2,7 @@ import { AuthenticatedRequest } from "@/middlewares";
 import hotelService from "@/services/hotels-service";
 import { Response } from "express"; 
 import httpStatus from "http-status";
+import { Hotel, Room } from "@prisma/client";
 
 export async function getHotels(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
@@ -9,7 +10,7 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
   try {
     await hotelService.isHotelPaid(userId);
 
-    const hotels = await hotelService.getHotels();
+    const hotels: Hotel[] = await hotelService.getHotels();
 
     return res.status(httpStatus.OK).send(hotels);
   } catch (error) {
@@ -33,7 +34,9 @@ export async function getHotelByID(req: AuthenticatedRequest, res: Response) {
     await hotelService.isHotelIdValid(hotelId);
     await hotelService.isHotelPaid(userId);
 
-    const rooms = await hotelService.getRoomsByHotelId(hotelId);
+    const rooms: (Room & {
+			Hotel: Hotel;
+		})[] = await hotelService.getRoomsByHotelId(hotelId);
 		
     return res.status(httpStatus.OK).send(rooms);
   } catch (error) {
