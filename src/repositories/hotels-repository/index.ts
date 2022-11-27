@@ -1,10 +1,13 @@
 import { prisma } from "@/config";
+import { Hotel, Room } from "@prisma/client";
 
-async function findHotels() {
+async function findHotels(): Promise<Hotel[]> {
   return prisma.hotel.findMany();
 }
 
-async function findRoomsByHotelId(hotelId: number) {
+async function findRoomsByHotelId(hotelId: number): Promise<(Room & {
+	Hotel: Hotel;
+})[]> {
   return prisma.room.findMany({
     where: {
       hotelId
@@ -15,7 +18,7 @@ async function findRoomsByHotelId(hotelId: number) {
   });
 }
 
-async function isHotelIdValid(hotelId: number) {
+async function isHotelIdValid(hotelId: number): Promise<Hotel> {
   return prisma.hotel.findFirst({
     where: {
       id: hotelId
