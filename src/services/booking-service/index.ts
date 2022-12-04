@@ -6,13 +6,20 @@ import ticketRepository from "@/repositories/ticket-repository";
 import { forbiddenError } from "@/errors/forbidden-error";
 
 async function getBooking(userId: number) {
-  const bookings = await bookingRepository.findBookingByUserId(userId);
+  await checkUserData(userId);
+	
+  const booking = await bookingRepository.findBookingByUserId(userId);
 
-  if(!bookings) {
+  if(!booking) {
     throw notFoundError();
   }
 
-  return bookings;
+  return {
+    id: booking.id,
+    Room: {
+      ...booking.Room
+    }
+  };
 }
 
 async function checkUserData(userId: number) {
@@ -20,6 +27,7 @@ async function checkUserData(userId: number) {
   if (!enrollment) {
     throw notFoundError();
   }
+
   const ticket = await ticketRepository.findTicketByEnrollmentId(enrollment.id);
 	
   if (!ticket || ticket.status === "RESERVED" || ticket.TicketType.isRemote || !ticket.TicketType.includesHotel) {
@@ -44,6 +52,12 @@ async function checkRoomInfo(roomId: number) {
 async function postBooking(userId: number, roomId: number) {
   await checkUserData(userId);
   await checkRoomInfo(roomId);
+
+  const isUserBooked = await bookingRepository.findBookingByUserId(userId);
+
+  if(isUserBooked) {
+    throw unauthorizedBooking();
+  }
 	
   const bookingData = {
     userId,
