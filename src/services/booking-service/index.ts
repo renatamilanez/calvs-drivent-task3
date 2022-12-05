@@ -51,13 +51,14 @@ async function checkRoomInfo(roomId: number) {
 
 async function postBooking(userId: number, roomId: number) {
   await checkUserData(userId);
-  await checkRoomInfo(roomId);
 
   const isUserBooked = await bookingRepository.findBookingByUserId(userId);
 
   if(isUserBooked) {
-    throw unauthorizedBooking();
+    throw forbiddenError();
   }
+
+  await checkRoomInfo(roomId);
 	
   const bookingData = {
     userId,
