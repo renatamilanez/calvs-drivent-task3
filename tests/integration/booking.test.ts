@@ -155,7 +155,7 @@ describe("POST /booking", () => {
       const ticketType = await createTicketType(false, true);
       await createTicket(userEnrollment.id, ticketType.id, TicketStatus.PAID);
       const room = await createRoom();
-      const booking = await createBooking(user.id, room.id);
+      await createBooking(user.id, room.id);
 
       const body = { roomId: faker.datatype.number() };
 			
